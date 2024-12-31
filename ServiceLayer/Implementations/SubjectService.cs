@@ -41,7 +41,7 @@ namespace AresValidator.ServiceLayer.Implementations
 
         public async Task<List<CompanyOutputModel?>> GetAsync(List<string> icoList)
         {
-            EkonomickeSubjektyKomplexFiltr komplexFiltr = new EkonomickeSubjektyKomplexFiltr(icoList.Count, icoList);
+            EkonomickeSubjektyKomplexFiltr komplexFiltr = new EkonomickeSubjektyKomplexFiltr(icoList.Count, icoList); //DODĚLAT ROZDĚLENÍ NA DÁVKY PO 100 IČECH!!
             EkonomickeSubjektySeznam? subjects = new EkonomickeSubjektySeznam();
 
             subjects = await ekonomickeSubjektyDao.GetAsync(komplexFiltr);
