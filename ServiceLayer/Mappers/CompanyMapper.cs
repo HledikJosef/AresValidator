@@ -27,5 +27,15 @@ namespace AresValidator.ServiceLayer.Mappers
             return companyOutputModel;
 
         }
+
+        public static CompanyOutputModel MapCompany(string unknownIco)
+        {
+            CompanyOutputModel companyOutputModel = new CompanyOutputModel();
+
+            companyOutputModel.IcoNumber = unknownIco;
+            companyOutputModel.IcoExists = false;
+
+            return companyOutputModel;
+        }
     }
 }

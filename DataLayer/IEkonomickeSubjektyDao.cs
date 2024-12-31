@@ -5,7 +5,7 @@ namespace AresValidator.DataLayer
 {
     public interface IEkonomickeSubjektyDao
     {
-        public Task<EkonomickySubjekt?> GetOneSubjectAsync(string ico);
-        public Task<EkonomickeSubjektySeznam?> GetListOfSubjects(EkonomickeSubjektyKomplexFiltr komplexFiltr);
+        public Task<EkonomickySubjekt?> GetAsync(string ico);
+        public Task<EkonomickeSubjektySeznam?> GetAsync(EkonomickeSubjektyKomplexFiltr komplexFiltr);
     }
 }

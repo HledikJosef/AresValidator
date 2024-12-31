@@ -1,10 +1,11 @@
-﻿using AresValidator.DataLayer.DTOs.ApiResponseDto;
+﻿using AresValidator.DataLayer.DTOs.CsvWriterDto;
 
 namespace AresValidator.ServiceLayer
 {
     public interface ISubjectService
     {
-        public Task<EkonomickySubjekt?> GetOneSubjectAsync(string ico);
-        public Task WriteOneSubjectAsync(EkonomickySubjekt subjekt, string filePath);
+        public Task<CompanyOutputModel?> GetAsync(string ico);
+        public Task<List<CompanyOutputModel?>> GetAsync(List<string> icoList);
+        public Task WriteCsvAsync(List<CompanyOutputModel> companyOutputModels, string filePath);
     }
 }
