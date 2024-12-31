@@ -17,7 +17,7 @@ namespace AresValidator.CompositionRoot
             services.AddScoped<ICsvRecorder, CsvRecorder>();
 
             //ServiceLayer
-            services.AddScoped<IOneSubjectService, OneSubjectService>();
+            services.AddScoped<ISubjectService, SubjectService>();
         }
     }
 }

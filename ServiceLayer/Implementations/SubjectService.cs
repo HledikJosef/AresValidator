@@ -5,13 +5,15 @@ using AresValidator.ServiceLayer.Mappers;
 
 namespace AresValidator.ServiceLayer.Implementations
 {
-    public class OneSubjectService : IOneSubjectService
+    public class SubjectService : ISubjectService
     {
         private readonly IEkonomickeSubjektyDao ekonomickeSubjektyDao;
+        private readonly ICsvRecorder csvRecorder;
 
-        public OneSubjectService(IEkonomickeSubjektyDao ekonomickeSubjektyDao)
+        public SubjectService(IEkonomickeSubjektyDao ekonomickeSubjektyDao, ICsvRecorder csvRecorder)
         {
             this.ekonomickeSubjektyDao = ekonomickeSubjektyDao;
+            this.csvRecorder = csvRecorder;
         }
 
 
@@ -24,9 +26,12 @@ namespace AresValidator.ServiceLayer.Implementations
             return subject;
         }
 
-        public async Task WriteOneSubjectAsync(EkonomickySubjekt subjekt)
+        public async Task WriteOneSubjectAsync(EkonomickySubjekt subjekt, string filePath)
         {
-            CompanyOutputModel companyOutputModel = CompanyMapper.MapCompany(subjekt);
+            List<CompanyOutputModel> companyOutputModels = new List<CompanyOutputModel>();
+            companyOutputModels.Add(CompanyMapper.MapCompany(subjekt));
+
+            await csvRecorder.WriteToCsvAsync(companyOutputModels, filePath);
         }
     }
 }

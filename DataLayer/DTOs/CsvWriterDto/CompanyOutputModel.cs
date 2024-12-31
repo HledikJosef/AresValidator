@@ -63,8 +63,5 @@ namespace AresValidator.DataLayer.DTOs.CsvWriterDto
         /// </summary>
         [Name("Datum zániku")]
         public string DateOfEnd { get; set; } = string.Empty;
-
-        [Name("Vrácená chyba")]
-        public string Error { get; set; } = string.Empty;
     }
 }
