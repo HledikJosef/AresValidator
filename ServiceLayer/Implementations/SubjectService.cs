@@ -43,26 +43,26 @@ namespace AresValidator.ServiceLayer.Implementations
             return companyOutputModel;
         }
 
-        public async Task<List<CompanyOutputModel?>> GetAsync(List<string> icoList)
+        public async Task<List<CompanyOutputModel?>> GetAsync(List<string> icoList) //dělit icoList na dávky o počtu prvků aresLimit
         {
-            List<string> modifiedIcoList;
-            int icoIndex = 0;
+            List<string> icos = new(icoList);
+            List<string> modifiedIcos = new();
+
             EkonomickeSubjektySeznam? subjects = new EkonomickeSubjektySeznam();
 
             do
             {
-                if (icoList.Count < aresLimit)
+                if (icos.Count < aresLimit)
                 {
-                    modifiedIcoList = icoList.GetRange(icoIndex, icoList.Count - icoIndex);
+                    modifiedIcos.AddRange(icos);
                 }
                 else
                 {
-                    modifiedIcoList = icoList.GetRange(icoIndex, aresLimit);
+                    modifiedIcos = icos.Take(aresLimit).ToList();
                 }
+                icos.RemoveRange(0, modifiedIcos.Count);
 
-                icoIndex += aresLimit;
-
-                EkonomickeSubjektyKomplexFiltr komplexFiltr = new EkonomickeSubjektyKomplexFiltr(modifiedIcoList.Count, modifiedIcoList);
+                EkonomickeSubjektyKomplexFiltr komplexFiltr = new EkonomickeSubjektyKomplexFiltr(modifiedIcos.Count, modifiedIcos);
                 EkonomickeSubjektySeznam? subjectsPart = await ekonomickeSubjektyDao.GetAsync(komplexFiltr);
 
                 if (subjectsPart is not null)
@@ -70,8 +70,10 @@ namespace AresValidator.ServiceLayer.Implementations
                     subjects.EkonomickeSubjekty.AddRange(subjectsPart.EkonomickeSubjekty);
                 }
 
+                modifiedIcos.Clear();
 
-            } while (icoIndex < icoList.Count);
+
+            } while (icos.Count > 0);
 
             List<string> unknownIcos = GetUknownIcos(icoList, subjects!);
 
