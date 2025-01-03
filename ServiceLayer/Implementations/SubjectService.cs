@@ -10,6 +10,10 @@ namespace AresValidator.ServiceLayer.Implementations
     {
         private readonly IEkonomickeSubjektyDao ekonomickeSubjektyDao;
         private readonly ICsvRecorder csvRecorder;
+        /// <summary>
+        /// limit počet ičo v jednom dotazu
+        /// </summary>
+        private const int aresLimit = 100;
 
         public SubjectService(IEkonomickeSubjektyDao ekonomickeSubjektyDao, ICsvRecorder csvRecorder)
         {
@@ -41,10 +45,33 @@ namespace AresValidator.ServiceLayer.Implementations
 
         public async Task<List<CompanyOutputModel?>> GetAsync(List<string> icoList)
         {
-            EkonomickeSubjektyKomplexFiltr komplexFiltr = new EkonomickeSubjektyKomplexFiltr(icoList.Count, icoList); //DODĚLAT ROZDĚLENÍ NA DÁVKY PO 100 IČECH!!
+            List<string> modifiedIcoList;
+            int icoIndex = 0;
             EkonomickeSubjektySeznam? subjects = new EkonomickeSubjektySeznam();
 
-            subjects = await ekonomickeSubjektyDao.GetAsync(komplexFiltr);
+            do
+            {
+                if (icoList.Count < aresLimit)
+                {
+                    modifiedIcoList = icoList.GetRange(icoIndex, icoList.Count - icoIndex);
+                }
+                else
+                {
+                    modifiedIcoList = icoList.GetRange(icoIndex, aresLimit);
+                }
+
+                icoIndex += aresLimit;
+
+                EkonomickeSubjektyKomplexFiltr komplexFiltr = new EkonomickeSubjektyKomplexFiltr(modifiedIcoList.Count, modifiedIcoList);
+                EkonomickeSubjektySeznam? subjectsPart = await ekonomickeSubjektyDao.GetAsync(komplexFiltr);
+
+                if (subjectsPart is not null)
+                {
+                    subjects.EkonomickeSubjekty.AddRange(subjectsPart.EkonomickeSubjekty);
+                }
+
+
+            } while (icoIndex < icoList.Count);
 
             List<string> unknownIcos = GetUknownIcos(icoList, subjects!);
 
@@ -69,6 +96,7 @@ namespace AresValidator.ServiceLayer.Implementations
             await csvRecorder.WriteToCsvAsync(companyOutputModels, filePath);
         }
 
+
         private List<string> GetUknownIcos(List<string> icoList, EkonomickeSubjektySeznam subjects) //pokud ico v Ares neexistuje, nic se nevrátí.
         {
             List<string> unknownIcos = new List<string>();
@@ -79,8 +107,10 @@ namespace AresValidator.ServiceLayer.Implementations
                 return unknownIcos;
 
             }
-
-            unknownIcos = icoList.Except(subjects.EkonomickeSubjekty.Select(s => s.Ico)).ToList();
+            else
+            {
+                unknownIcos = icoList.Except(subjects.EkonomickeSubjekty.Select(s => s.Ico)).ToList();
+            }
 
             return unknownIcos;
         }
