@@ -60,6 +60,7 @@ namespace AresValidator.ServiceLayer.Implementations
                 {
                     modifiedIcos = icos.Take(aresLimit).ToList();
                 }
+
                 icos.RemoveRange(0, modifiedIcos.Count);
 
                 EkonomickeSubjektyKomplexFiltr komplexFiltr = new EkonomickeSubjektyKomplexFiltr(modifiedIcos.Count, modifiedIcos);
