@@ -1,4 +1,4 @@
-﻿using AresValidator.DataLayer.DTOs.CsvWriterDto;
+﻿using AresValidator.Models;
 
 namespace AresValidator.ServiceLayer
 {
@@ -6,6 +6,6 @@ namespace AresValidator.ServiceLayer
     {
         public Task<CompanyOutputModel?> GetAsync(string ico);
         public Task<List<CompanyOutputModel?>> GetAsync(List<string> icoList);
-        public Task WriteCsvAsync(List<CompanyOutputModel> companyOutputModels, string filePath);
+        public Task WriteCsvAsync(List<CompanyOutputModel> companyOutputModels);
     }
 }

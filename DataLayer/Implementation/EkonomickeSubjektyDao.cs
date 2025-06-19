@@ -1,5 +1,7 @@
-﻿using AresValidator.DataLayer.DTOs.ApiRequestDto;
-using AresValidator.DataLayer.DTOs.ApiResponseDto;
+﻿using AresValidator.DTOs;
+using AresValidator.DTOs.ApiRequestDto;
+using AresValidator.DTOs.ApiResponseDto;
+using Microsoft.Extensions.Options;
 using System.Text;
 using System.Text.Json;
 
@@ -7,25 +9,38 @@ namespace AresValidator.DataLayer.Implementation
 {
     public class EkonomickeSubjektyDao : IEkonomickeSubjektyDao
     {
-        private const string apiUrlKomplexFiltr = "https://ares.gov.cz/ekonomicke-subjekty-v-be/rest/ekonomicke-subjekty/vyhledat";
-        private const string apiUrlOneSubject = "https://ares.gov.cz/ekonomicke-subjekty-v-be/rest/ekonomicke-subjekty";
+        //todo - mělo by být v appsettings.json a načítat se přes DI kontejner.
+        //doporučuji nabindovat pomocí IOptions<T> (pogoogli, pochatuj). Může se stát, že se url změní a pak bys musel měnit kód
+        private string? apiUrlKomplexFiltr;
+        private string? apiUrlOneSubject;
 
-        public async Task<EkonomickySubjekt?> GetAsync(string ico)
+        public EkonomickeSubjektyDao(IOptions<ApiSettings> options)
         {
-            HttpClient client = new HttpClient();
+            apiUrlKomplexFiltr = options.Value.ApiUrlKomplexFiltr;
+            apiUrlOneSubject = options.Value.ApiUrlOneSubject;
+        }
+
+        public async Task<EkonomickySubjekt> GetAsync(string ico)
+        {
 
             JsonSerializerOptions deserialiezerOptions = new JsonSerializerOptions()
             {
                 PropertyNameCaseInsensitive = true,
             };
 
-            string requestUrl = $"{apiUrlOneSubject}/{ico}";
+            string requestUrl = $"{apiUrlOneSubject}{ico}";
 
-            HttpResponseMessage response = await client.GetAsync(requestUrl);
+            string responseBody = string.Empty;
 
-            string responseBody = await response.Content.ReadAsStringAsync();
+            using (HttpClient client = new HttpClient())
+            {
+                HttpResponseMessage response = await client.GetAsync(requestUrl);
 
-            EkonomickySubjekt? subject = new EkonomickySubjekt();
+                responseBody = await response.Content.ReadAsStringAsync();
+
+            }
+
+            EkonomickySubjekt subject = new EkonomickySubjekt();
             subject = JsonSerializer.Deserialize<EkonomickySubjekt>(responseBody, deserialiezerOptions);
 
             return subject;
@@ -33,9 +48,9 @@ namespace AresValidator.DataLayer.Implementation
         }
 
 
-        public async Task<EkonomickeSubjektySeznam?> GetAsync(EkonomickeSubjektyKomplexFiltr komplexFiltr)
+        public async Task<EkonomickeSubjektySeznam> GetAsync(EkonomickeSubjektyKomplexFiltr komplexFiltr)
         {
-            HttpClient client = new HttpClient();
+
 
             JsonSerializerOptions serializerOptions = new JsonSerializerOptions()
             {
@@ -49,12 +64,17 @@ namespace AresValidator.DataLayer.Implementation
             string jsonContent = JsonSerializer.Serialize(komplexFiltr, serializerOptions);
             StringContent content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-            HttpResponseMessage response = await client.PostAsync(apiUrlKomplexFiltr, content);
+            string responseBody = string.Empty;
 
-            string responseBody = await response.Content.ReadAsStringAsync();
+            using (HttpClient client = new HttpClient())
+            {
+                HttpResponseMessage response = await client.PostAsync(apiUrlKomplexFiltr, content);
 
-            EkonomickeSubjektySeznam? ekonomickeSubjektySeznam = new EkonomickeSubjektySeznam();
-            ekonomickeSubjektySeznam = JsonSerializer.Deserialize<EkonomickeSubjektySeznam>(responseBody, deserializierOptions);
+                responseBody = await response.Content.ReadAsStringAsync();
+            }
+
+
+            EkonomickeSubjektySeznam ekonomickeSubjektySeznam = JsonSerializer.Deserialize<EkonomickeSubjektySeznam>(responseBody, deserializierOptions);
 
             return ekonomickeSubjektySeznam;
 

@@ -1,4 +1,4 @@
-﻿using AresValidator.DataLayer.DTOs.CsvWriterDto;
+﻿using AresValidator.Models;
 using CsvHelper;
 using CsvHelper.Configuration;
 using System.Globalization;
@@ -6,7 +6,7 @@ using System.Text;
 
 namespace AresValidator.DataLayer.Implementation
 {
-    public class CsvRecorder : ICsvRecorder
+    public class CsvCreator : ICsvCreator
     {
 
         public async Task WriteToCsvAsync(IEnumerable<CompanyOutputModel> companyData, string filePath)
@@ -23,7 +23,7 @@ namespace AresValidator.DataLayer.Implementation
             CsvConfiguration csvConfiguration = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
                 Delimiter = ";",
-                Encoding = Encoding.UTF8,
+                Encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: true),
                 HasHeaderRecord = true,
             };
 
@@ -39,7 +39,4 @@ namespace AresValidator.DataLayer.Implementation
 
 
     }
-
-
-
 }

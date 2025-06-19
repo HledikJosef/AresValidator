@@ -8,6 +8,12 @@
 
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="33.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AresValidator.DTOs\AresValidator.DTOs.csproj" />
+    <ProjectReference Include="..\AresValidator.Models\AresValidator.Models.csproj" />
   </ItemGroup>
 
 </Project>

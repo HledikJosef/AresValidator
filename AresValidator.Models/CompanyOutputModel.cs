@@ -1,6 +1,6 @@
 ﻿using CsvHelper.Configuration.Attributes;
 
-namespace AresValidator.DataLayer.DTOs.CsvWriterDto
+namespace AresValidator.Models
 {
     public class CompanyOutputModel
     {

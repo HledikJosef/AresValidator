@@ -12,12 +12,12 @@ namespace AresValidator.CompositionRoot
         {
             //DataLayer
             services.AddScoped<IEkonomickeSubjektyDao, EkonomickeSubjektyDao>();
-            services.AddScoped<ICsvRecorder, CsvRecorder>();
+            services.AddScoped<ICsvCreator, CsvCreator>();
             services.AddScoped<ICsvReader, CsvReader>();
-            services.AddScoped<ICsvRecorder, CsvRecorder>();
 
             //ServiceLayer
-            services.AddScoped<ISubjectService, SubjectService>();
+            services.AddTransient<ISubjectService, SubjectService>();
         }
+
     }
 }

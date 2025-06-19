@@ -1,16 +1,16 @@
-﻿using AresValidator.DataLayer.DTOs.ApiResponseDto;
-using AresValidator.DataLayer.DTOs.CsvWriterDto;
+﻿using AresValidator.DTOs.ApiResponseDto;
+using AresValidator.Models;
 
 namespace AresValidator.ServiceLayer.Mappers
 {
     public static class CompanyMapper
     {
-        public static CompanyOutputModel MapCompany(EkonomickySubjekt ekonomickySubjekt)
+        public static CompanyOutputModel MapCompany(EkonomickySubjekt ekonomickySubjekt, bool isValidIco = true)
         {
             CompanyOutputModel companyOutputModel = new CompanyOutputModel();
 
             companyOutputModel.IcoNumber = ekonomickySubjekt.Ico ?? string.Empty;
-            companyOutputModel.IcoExists = true;
+            companyOutputModel.IcoExists = isValidIco;
             companyOutputModel.Name = ekonomickySubjekt.ObchodniJmeno ?? string.Empty;
             companyOutputModel.Street = ekonomickySubjekt.Sidlo.NazevUlice ?? string.Empty;
             companyOutputModel.City = ekonomickySubjekt.Sidlo.NazevObce ?? string.Empty;

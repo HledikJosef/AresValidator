@@ -1,4 +1,6 @@
 using AresValidator.Components;
+using AresValidator.CompositionRoot;
+using AresValidator.DTOs;
 
 namespace AresValidator
 {
@@ -11,6 +13,10 @@ namespace AresValidator
             // Add services to the container.
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
+
+            builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection("ApiSettings"));
+
+            builder.Services.AddServices();
 
             var app = builder.Build();
 

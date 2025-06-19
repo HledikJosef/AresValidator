@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35527.113 d17.12
+VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AresValidator", "AresValidator\AresValidator.csproj", "{1F56B2A6-4E53-4BFD-B020-713E66142A59}"
 EndProject
@@ -10,6 +10,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AresValidator.DataLayer", "DataLayer\AresValidator.DataLayer.csproj", "{8031122C-455B-404E-8C93-63C2CF71ACC3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AresValidator.CompositionRoot", "AresValidator.CompositionRoot\AresValidator.CompositionRoot.csproj", "{B8BFD681-8AE6-40F3-8351-3061516DB418}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AresValidator.DTOs", "AresValidator.DTOs\AresValidator.DTOs.csproj", "{6D1D79A3-2064-4601-9167-E686C659A025}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AresValidator.Models", "AresValidator.Models\AresValidator.Models.csproj", "{DB2CCDDA-C0C5-4B36-A676-0B644CC7E6D9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +37,14 @@ Global
 		{B8BFD681-8AE6-40F3-8351-3061516DB418}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B8BFD681-8AE6-40F3-8351-3061516DB418}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B8BFD681-8AE6-40F3-8351-3061516DB418}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D1D79A3-2064-4601-9167-E686C659A025}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D1D79A3-2064-4601-9167-E686C659A025}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D1D79A3-2064-4601-9167-E686C659A025}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D1D79A3-2064-4601-9167-E686C659A025}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB2CCDDA-C0C5-4B36-A676-0B644CC7E6D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB2CCDDA-C0C5-4B36-A676-0B644CC7E6D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB2CCDDA-C0C5-4B36-A676-0B644CC7E6D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB2CCDDA-C0C5-4B36-A676-0B644CC7E6D9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

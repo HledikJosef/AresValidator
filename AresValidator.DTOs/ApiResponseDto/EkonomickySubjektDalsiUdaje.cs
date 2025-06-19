@@ -1,4 +1,4 @@
-﻿namespace AresValidator.DataLayer.DTOs.ApiResponseDto
+﻿namespace AresValidator.DTOs.ApiResponseDto
 {
     public class EkonomickySubjektDalsiUdaje
     {

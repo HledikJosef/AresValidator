@@ -1,8 +1,8 @@
-﻿using AresValidator.DataLayer.DTOs.CsvWriterDto;
+﻿using AresValidator.Models;
 
 namespace AresValidator.DataLayer
 {
-    public interface ICsvRecorder
+    public interface ICsvCreator
     {
         public Task WriteToCsvAsync(IEnumerable<CompanyOutputModel> companyData, string filePath);
     }

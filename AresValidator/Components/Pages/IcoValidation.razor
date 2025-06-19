@@ -1,0 +1,174 @@
+﻿@page "/"
+@using System.ComponentModel.DataAnnotations
+@using AresValidator.Models
+@inject ISubjectService SubjectService
+@rendermode InteractiveServer
+
+<h3>Ověřte platnost IČ.</h3>
+<h5>Zadejte jednotlivé IČ nebo celý seznam IČ ručně či načtením ze souboru typu csv.</h5>
+<hr>
+
+<div class="container mt-4">
+	<EditForm Model="@IcoModel" OnValidSubmit="GetCompanyAsync" FormName="icoForm">
+		<DataAnnotationsValidator />
+		<div class="row mb-3">
+			<div class="col-md-4">
+				<label for="icoInput" class="form-label fw-bold">Vyplňte IČ</label>
+				<InputText id="icoInput" @bind-Value="IcoModel.Ico" class="form-control" type="number" />				
+			</div>
+			<div class="col-md-2 d-flex align-items-end">
+				<button type="submit" class="btn btn-primary w-100">OK</button>
+			</div>
+			<ValidationMessage For="@(() => IcoModel.Ico)" class="text-danger" />
+		</div>
+	</EditForm>
+</div>
+
+<div class="container mt-4">
+	<label for="csvInput" class="form-label fw-bold">Nahrajte CSV soubor</label>
+	<InputFile id="csvInput" OnChange="HandleFileSelected" class="form-control" />
+	@if (!string.IsNullOrEmpty(uploadError))
+	{
+		<div class="text-danger mt-1">@uploadError</div>
+	}
+</div>
+
+<div class="conatiner mt-4">
+	@if (Companies?.Any() == true)
+	{
+		<table class="table table-striped table-bordered">
+			<thead>
+				<tr>
+					<th>Dotazované IČO</th>
+					<th>IČO existuje</th>
+					<th>Název</th>
+					<th>Ulice</th>
+					<th>Obec</th>
+					<th>Část obce</th>
+					<th>PSČ</th>
+					<th>Číslo orientační</th>
+					<th>Číslo or.-písmeno</th>
+					<th>Domovní číslo</th>
+					<th>Země</th>
+					<th>Adresa textem</th>
+					<th>DIČ</th>
+					<th>Datum zániku</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var company in Companies)
+				{
+					<tr>
+						<td>@company.IcoNumber</td>
+						<td>@(company.IcoExists ? "Ano" : "Ne")</td>
+						<td>@company.Name</td>
+						<td>@company.Street</td>
+						<td>@company.City</td>
+						<td>@company.CityPart</td>
+						<td>@company.PostalCode</td>
+						<td>@(company.OrientationNumber?.ToString() ?? "")</td>
+						<td>@company.OrientationNumberLetter</td>
+						<td>@(company.HouseNumber?.ToString() ?? "")</td>
+						<td>@company.Country</td>
+						<td>@company.TextAddress</td>
+						<td>@company.DIC</td>
+						<td>@company.DateOfEnd</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+
+		<div>
+			<a class="btn btn-success" @onclick="SaveCompanies">Stáhnout seznam subjektů</a>
+		</div>
+	}
+</div>
+
+@code {
+	[SupplyParameterFromForm]
+	IcoModel IcoModel { get; set; } = new IcoModel();
+
+	private IBrowserFile? uploadedFile;
+	private string? uploadError;
+
+	[Parameter]
+	public List<CompanyOutputModel> Companies { get; set; }
+
+	private async Task GetCompanyAsync()
+	{
+		Companies = new();
+		if (string.IsNullOrWhiteSpace(IcoModel.Ico))
+		{
+			return;
+		}
+
+		Companies.Add(await SubjectService.GetAsync(IcoModel.Ico));		
+	}
+
+	private async Task HandleFileSelected(InputFileChangeEventArgs e)
+	{
+		var file = e.File;
+
+		if (file == null || file.Size == 0)
+		{
+			uploadError = "Prosím vyberte platný CSV soubor.";
+			return;
+		}
+
+		if (!file.Name.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
+		{
+			uploadError = "Prosím nahrajte soubor ve formátu CSV.";
+			return;
+		}
+
+		try
+		{
+			uploadedFile = file;
+			uploadError = null;
+
+			// ⬇️ Zde načteš obsah CSV
+			using var stream = uploadedFile.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024); // např. max 10 MB
+			using var reader = new StreamReader(stream);
+			string content = await reader.ReadToEndAsync();
+
+			// ⬇️ Můžeš zde zpracovat řádky nebo parsovat CSV
+			var lines = content.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+			List<string> icos = new();
+
+			foreach (var line in lines)
+			{
+				if (!string.IsNullOrWhiteSpace(line))
+				{
+					// Předpokládáme, že každý řádek obsahuje jedno IČ
+					icos.Add(line.Trim());
+				}
+			}
+			Companies = await SubjectService.GetAsync(icos);
+		}
+		catch (Exception ex)
+		{
+			uploadError = $"Chyba při čtení souboru: {ex.Message}";
+		}
+	}
+
+	private async Task SaveCompanies()
+	{
+		try 
+		{
+			if (Companies.Count == 0)
+			{
+				uploadError = "Seznam subjektů je prázdný. Není co ukládat.";
+				return;
+			}
+
+			 await SubjectService.WriteCsvAsync(Companies);
+
+		}
+		catch (Exception ex)
+		{
+			uploadError = $"Chyba při ukládání souboru: {ex.Message}";
+			return;
+		}
+	
+	}
+}

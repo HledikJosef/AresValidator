@@ -1,4 +1,5 @@
-﻿namespace AresValidator.DataLayer.DTOs.ApiRequestDto
+﻿namespace AresValidator.DTOs.ApiRequestDto
+
 {
     public class EkonomickeSubjektyKomplexFiltr
     {

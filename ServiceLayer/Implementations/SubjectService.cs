@@ -1,7 +1,7 @@
 ﻿using AresValidator.DataLayer;
-using AresValidator.DataLayer.DTOs.ApiRequestDto;
-using AresValidator.DataLayer.DTOs.ApiResponseDto;
-using AresValidator.DataLayer.DTOs.CsvWriterDto;
+using AresValidator.DTOs.ApiRequestDto;
+using AresValidator.DTOs.ApiResponseDto;
+using AresValidator.Models;
 using AresValidator.ServiceLayer.Mappers;
 
 namespace AresValidator.ServiceLayer.Implementations
@@ -9,74 +9,75 @@ namespace AresValidator.ServiceLayer.Implementations
     public class SubjectService : ISubjectService
     {
         private readonly IEkonomickeSubjektyDao ekonomickeSubjektyDao;
-        private readonly ICsvRecorder csvRecorder;
+        private readonly ICsvCreator csvCreator;
         /// <summary>
         /// limit počet ičo v jednom dotazu
         /// </summary>
-        private const int aresLimit = 100;
+        private const int AresLimit = 99;
 
-        public SubjectService(IEkonomickeSubjektyDao ekonomickeSubjektyDao, ICsvRecorder csvRecorder)
+        public SubjectService(IEkonomickeSubjektyDao ekonomickeSubjektyDao, ICsvCreator csvCreator)
         {
             this.ekonomickeSubjektyDao = ekonomickeSubjektyDao;
-            this.csvRecorder = csvRecorder;
+            this.csvCreator = csvCreator;
         }
 
 
         public async Task<CompanyOutputModel?> GetAsync(string ico)
         {
-            EkonomickySubjekt? subject = new EkonomickySubjekt();
-            CompanyOutputModel? companyOutputModel = new();
+            ico = IcoValidater.ValidateIco(ico);
+            CompanyOutputModel companyOutputModel = new();
+            EkonomickySubjekt subject = await ekonomickeSubjektyDao.GetAsync(ico);
 
-            subject = await ekonomickeSubjektyDao.GetAsync(ico);
-
-            if (subject is not null)
+            if (!string.IsNullOrWhiteSpace(subject.Ico))
             {
                 companyOutputModel = CompanyMapper.MapCompany(subject);
             }
             else   //pokud ico v Ares neexistuje, nic se nevrátí.
             {
-                companyOutputModel.IcoNumber = ico;
-                companyOutputModel.IcoExists = false;
+                string unknownIco = ico;
+                companyOutputModel = CompanyMapper.MapCompany(unknownIco);
             }
-
 
             return companyOutputModel;
         }
 
         public async Task<List<CompanyOutputModel?>> GetAsync(List<string> icoList) //dělit icoList na dávky o počtu prvků aresLimit
         {
+            icoList = icoList.Select(i => IcoValidater.ValidateIco(i)).ToList();
+
             List<string> icos = new(icoList);
-            List<string> modifiedIcos = new();
+            List<string> icosPart = new();
 
-            EkonomickeSubjektySeznam? subjects = new EkonomickeSubjektySeznam();
-
+            EkonomickeSubjektySeznam subjects = new EkonomickeSubjektySeznam();
+            //todo - není to technicky chybou, ale do a while je docela nevidané a možná to jde napsat i bez něj.
+            //A pokud to lze napsat bez něj a použít jen while nebo foreach, tak bych to tak udělal v zájmu čitelnosti.
             do
             {
-                if (icos.Count < aresLimit)
+                if (icos.Count < AresLimit)
                 {
-                    modifiedIcos.AddRange(icos);
+                    icosPart.AddRange(icos);
                 }
                 else
                 {
-                    modifiedIcos = icos.Take(aresLimit).ToList();
+                    icosPart = icos.Take(AresLimit).ToList();
                 }
 
-                icos.RemoveRange(0, modifiedIcos.Count);
+                icos.RemoveRange(0, icosPart.Count);
 
-                EkonomickeSubjektyKomplexFiltr komplexFiltr = new EkonomickeSubjektyKomplexFiltr(modifiedIcos.Count, modifiedIcos);
-                EkonomickeSubjektySeznam? subjectsPart = await ekonomickeSubjektyDao.GetAsync(komplexFiltr);
+                EkonomickeSubjektyKomplexFiltr komplexFiltr = new EkonomickeSubjektyKomplexFiltr(icosPart.Count, icosPart);
+                EkonomickeSubjektySeznam subjectsPart = await ekonomickeSubjektyDao.GetAsync(komplexFiltr);
 
                 if (subjectsPart is not null)
                 {
                     subjects.EkonomickeSubjekty.AddRange(subjectsPart.EkonomickeSubjekty);
                 }
 
-                modifiedIcos.Clear();
+                icosPart.Clear();
 
 
             } while (icos.Count > 0);
 
-            List<string> unknownIcos = GetUknownIcos(icoList, subjects!);
+            List<string> unknownIcos = GetUknownIcos(icoList, subjects);
 
             List<CompanyOutputModel?> companyOutputModels = new List<CompanyOutputModel?>();
 
@@ -94,17 +95,20 @@ namespace AresValidator.ServiceLayer.Implementations
 
         }
 
-        public async Task WriteCsvAsync(List<CompanyOutputModel> companyOutputModels, string filePath)
+        public async Task WriteCsvAsync(List<CompanyOutputModel> companyOutputModels)
         {
-            await csvRecorder.WriteToCsvAsync(companyOutputModels, filePath);
+            string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+            await csvCreator.WriteToCsvAsync(companyOutputModels, filePath);
         }
 
 
-        private List<string> GetUknownIcos(List<string> icoList, EkonomickeSubjektySeznam subjects) //pokud ico v Ares neexistuje, nic se nevrátí.
+        private List<string> GetUknownIcos(List<string> icoList, EkonomickeSubjektySeznam subjects) //pokud ico v Ares neexistuje, subjekt se nevrátí.
         {
             List<string> unknownIcos = new List<string>();
 
-            if (subjects is null)
+            //todo - subject obsahují kolekci několika subjektů a jejich ičo, je to skutečně správně, že ověřuješ celý tento obalovací objekt na null?
+            //není záměrem ověřit konkrétní ičo? Možná to jen špatně chápu nebo si to blbě pamatuji.
+            if (subjects.EkonomickeSubjekty.Count() == 0)
             {
                 unknownIcos = icoList;
                 return unknownIcos;
