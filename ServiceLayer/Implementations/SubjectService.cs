@@ -49,8 +49,7 @@ namespace AresValidator.ServiceLayer.Implementations
             List<string> icosPart = new();
 
             EkonomickeSubjektySeznam subjects = new EkonomickeSubjektySeznam();
-            //todo - není to technicky chybou, ale do a while je docela nevidané a možná to jde napsat i bez něj.
-            //A pokud to lze napsat bez něj a použít jen while nebo foreach, tak bych to tak udělal v zájmu čitelnosti.
+
             do
             {
                 if (icos.Count < AresLimit)
@@ -106,13 +105,10 @@ namespace AresValidator.ServiceLayer.Implementations
         {
             List<string> unknownIcos = new List<string>();
 
-            //todo - subject obsahují kolekci několika subjektů a jejich ičo, je to skutečně správně, že ověřuješ celý tento obalovací objekt na null?
-            //není záměrem ověřit konkrétní ičo? Možná to jen špatně chápu nebo si to blbě pamatuji.
             if (subjects.EkonomickeSubjekty.Count() == 0)
             {
                 unknownIcos = icoList;
                 return unknownIcos;
-
             }
             else
             {
