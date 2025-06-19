@@ -9,8 +9,6 @@ namespace AresValidator.DataLayer.Implementation
 {
     public class EkonomickeSubjektyDao : IEkonomickeSubjektyDao
     {
-        //todo - mělo by být v appsettings.json a načítat se přes DI kontejner.
-        //doporučuji nabindovat pomocí IOptions<T> (pogoogli, pochatuj). Může se stát, že se url změní a pak bys musel měnit kód
         private string? apiUrlKomplexFiltr;
         private string? apiUrlOneSubject;
 

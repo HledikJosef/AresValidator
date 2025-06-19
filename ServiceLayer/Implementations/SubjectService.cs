@@ -1,8 +1,10 @@
 ﻿using AresValidator.DataLayer;
+using AresValidator.DTOs;
 using AresValidator.DTOs.ApiRequestDto;
 using AresValidator.DTOs.ApiResponseDto;
 using AresValidator.Models;
 using AresValidator.ServiceLayer.Mappers;
+using Microsoft.Extensions.Options;
 
 namespace AresValidator.ServiceLayer.Implementations
 {
@@ -14,11 +16,13 @@ namespace AresValidator.ServiceLayer.Implementations
         /// limit počet ičo v jednom dotazu
         /// </summary>
         private const int AresLimit = 99;
-
-        public SubjectService(IEkonomickeSubjektyDao ekonomickeSubjektyDao, ICsvCreator csvCreator)
+        private string fileDirectory;
+        public SubjectService(IEkonomickeSubjektyDao ekonomickeSubjektyDao, ICsvCreator csvCreator, IOptions<ApiSettings> options)
         {
             this.ekonomickeSubjektyDao = ekonomickeSubjektyDao;
             this.csvCreator = csvCreator;
+            string fileDirectoryRaw = options.Value.FileDirectory;
+            fileDirectory = Environment.ExpandEnvironmentVariables(fileDirectoryRaw);
         }
 
 
@@ -96,8 +100,7 @@ namespace AresValidator.ServiceLayer.Implementations
 
         public async Task WriteCsvAsync(List<CompanyOutputModel> companyOutputModels)
         {
-            string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
-            await csvCreator.WriteToCsvAsync(companyOutputModels, filePath);
+            await csvCreator.WriteToCsvAsync(companyOutputModels, fileDirectory);
         }
 
 
